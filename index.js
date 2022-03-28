@@ -1,85 +1,28 @@
+// Initialisation
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d"); //Canvas Context
+const GRAVITY = 0.5;
 
 canvas.width = 1024;
 canvas.height = 576;
 
 c.fillRect(0, 0, canvas.width, canvas.height);
 
-const GRAVITY = 0.5;
-
-class Sprite {
-  constructor({ position, velocity, color = "red", offset }) {
-    this.position = position;
-    this.velocity = velocity;
-    this.width = 50;
-    this.height = 150;
-    this.lastKey = null;
-    this.attackBox = {
-      position: { x: this.position.x, y: this.position.y },
-      offset,
-      width: 100,
-      height: 50,
-    };
-    this.color = color;
-    this.isAttacking = false;
-    this.health = 100;
-  }
-
-  //draws the sprite
-  draw() {
-    c.fillStyle = this.color;
-    c.fillRect(this.position.x, this.position.y, this.width, this.height);
-
-    //draw attack box
-    if (this.isAttacking) {
-      c.fillStyle = "green";
-      c.fillRect(
-        this.attackBox.position.x,
-        this.attackBox.position.y,
-        this.attackBox.width,
-        this.attackBox.height
-      );
-    }
-  }
-
-  update() {
-    this.draw();
-    this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
-    this.attackBox.position.y = this.position.y;
-
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y;
-    //if sprite is touching the ground
-    if (this.position.y + this.height + this.velocity.y >= canvas.height) {
-      this.velocity.y = 0;
-      //if sprite is not touching the ground, it will fall
-    } else {
-      this.velocity.y += GRAVITY;
-    }
-  }
-  attack() {
-    this.isAttacking = true;
-    setTimeout(() => {
-      this.isAttacking = false;
-    }, 100);
-  }
-}
-
-const player = new Sprite({
+const background = new Sprite({
+  position: { x: 0, y: 0 },
+  imageSrc: "./assets/background.png",
+});
+const player = new Fighter({
   position: { x: 20, y: 0 },
   velocity: { x: 0, y: 0 },
   offset: { x: 0, y: 0 },
 });
-
-const enemy = new Sprite({
+const enemy = new Fighter({
   position: { x: canvas.width - 120, y: 0 },
   velocity: { x: 0, y: 0 },
   offset: { x: -50, y: 0 },
   color: "blue",
 });
-
-console.log("player", player);
 
 const keys = {
   q: { pressed: false },
@@ -89,49 +32,13 @@ const keys = {
   ArrowLeft: { pressed: false },
 };
 
-function rectangularCollision({ rect1, rect2 }) {
-  return (
-    rect1.attackBox.position.x + rect1.attackBox.width >= rect2.position.x && // if rect1's attack box is to the right of the enemy's position
-    rect1.attackBox.position.x <= rect2.position.x + rect2.width && // if rect1's attack box is to the left of the enemy's position
-    rect1.attackBox.position.y + rect1.attackBox.height >= rect2.position.y && // if react1's attack box is below the enemy's position
-    rect1.attackBox.position.y <= rect2.position.y + rect2.height // if rect1's attack box is above the enemy's position
-  );
-}
-
-function determineWinner({ player, enemy, timerId }) {
-  clearTimeout(timerId);
-  document.querySelector("#displayText").style.display = "flex";
-  if (player.health === enemy.health) {
-    document.querySelector("#displayText").innerHTML = "Draw!";
-  } else if (player.health > enemy.health) {
-    console.log("player 1 wins");
-    document.querySelector("#displayText").innerHTML = "Player 1 Wins!";
-  } else {
-    console.log("Player 2 wins");
-    document.querySelector("#displayText").innerHTML = "Player 2 Wins!";
-  }
-}
-
-let timer = 60;
-let timeId;
-function decreaseTimer() {
-  if (timer > 0) {
-    timerId = setTimeout(decreaseTimer, 1000);
-    timer--;
-    document.querySelector("#timer").innerHTML = timer;
-  }
-  if (timer === 0) {
-    determineWinner({ player, enemy, timerId });
-  }
-}
-
 decreaseTimer();
 
 function animate() {
   window.requestAnimationFrame(animate);
   c.fillStyle = "black";
   c.fillRect(0, 0, canvas.width, canvas.height);
-  //   console.log("animating");
+  background.draw();
   player.update();
   enemy.update();
 
