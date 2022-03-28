@@ -23,6 +23,7 @@ class Sprite {
     };
     this.color = color;
     this.isAttacking = false;
+    this.health = 100;
   }
 
   //draws the sprite
@@ -128,14 +129,17 @@ function animate() {
     player.isAttacking
   ) {
     player.isAttacking = false;
-    console.log("collision");
+    enemy.health -= 10;
+    document.querySelector("#enemyHP").style.width = enemy.health + "%";
+    // console.log("collision");
   }
   if (
     rectangularCollision({ rect1: enemy, rect2: player }) &&
     enemy.isAttacking
   ) {
     enemy.isAttacking = false;
-    console.log("collision enemy");
+    player.health -= 10;
+    document.querySelector("#playerHP").style.width = player.health + "%";
   }
 }
 
