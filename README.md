@@ -12,4 +12,5 @@ Later on, I plan to add more feature to the game and also clean up the code
 
 - 2 players fighting game using Sprites.
 - Gravity
+- Attack system
 - Work in progress...
